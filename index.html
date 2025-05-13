@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>¿Í¼Ò²ËËæ»úÉú³ÉÆ÷</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f3f5;
+            overflow: hidden;
+            font-family: 'Microsoft Yahei', sans-serif;
+        }
+
+        .container {
+            position: relative;
+            width: 80vmin;
+            height: 80vmin;
+            max-width: 600px;
+            max-height: 600px;
+        }
+
+        #dish-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: ring-rotate 40s linear infinite;
+            transform-origin: center center;
+        }
+
+        .dish-word {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            opacity: 0.8;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        #generateBtn {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 16px 32px;
+            font-size: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 2;
+            transition: all 0.3s;
+        }
+
+        #generateBtn.disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        #result {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #c43d23;
+            background: linear-gradient(45deg, #fff3e0, #ffecb3);
+            padding: 20px 40px;
+            border-radius: 50px;
+            opacity: 0;
+            transform: scale(0) translate(-50%, -50%);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            z-index: 3;
+        }
+
+        #result.show {
+            opacity: 1;
+            transform: scale(1) translate(-50%, -50%);
+        }
+
+        @keyframes ring-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes word-float {
+            0%, 100% { transform: translate(-50%, -50%) rotate(var(--r)) translateY(0); }
+            50% { transform: translate(-50%, -50%) rotate(var(--r)) translateY(-8px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="dish-ring"></div>
+        <button id="generateBtn">½ñÈÕ³ÔØ¿²Ë£¿</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const dishes = [
+            "ÉÖíÈâ£¨¿ÛÈâ£©", "¿Í¼ÒºììËÈâ", "×Ï½ğÅ£ÈâÍè", "Ìì¹âÅ£ÈâÍè", "¶«½­ÑÎŸh¼¦",
+            "ÊÖËºÑÎŸh¼¦", "Â±Î¶Å£Ìã", "Â±Î¶Å£Í·Èâ", "È«Å£»ğ¹ø", "ÄğÈı±¦",
+            "Äğ¶¹¸¯", "Äï¾Æ×íºÓÏº", "ÉÏÌÀ¹ğ»¨Óã", "½ª´Ğ³´Å£Èâ", "ËâÏãÅÅ¹Ç",
+            "ÏãÓó¿ÛÈâ", "Öí¶Ç°ü¼¦", "Ã·²ËÕôÅÅ¹Ç", "¿Í¼ÒìË¶ì", "ÂÜ²·Å£ÔÓìÒ",
+            "°Ëµ¶ÌÀ", "ÎåÖ¸Ã«ÌÒ¼¦ÌÀ", "¿Í¼ÒÈı¼°µÚÌÀ", "Öí½Å·Û", "°¬ôÙ",
+            "¿Í¼ÒëçÃæ", "ËâÈØ³´Ê±Êß", "¿Í¼ÒÀŞ²è", "¿Í¼ÒÃ·²Ë¿ÛÈâ", "ÌÇ´×ÅÅ¹Ç"
+        ];
+
+        let isAnimating = false;
+
+        function createDishRing() {
+            const ring = document.getElementById('dish-ring');
+            const baseRadius = 45;
+            const total = 18;
+
+            ring.innerHTML = '';
+
+            for (let i = 0; i < total; i++) {
+                const dish = document.createElement('div');
+                dish.className = 'dish-word';
+                dish.textContent = dishes[Math.floor(Math.random() * dishes.length)];
+                
+                const angle = (i * (360 / total)) + Math.random() * 15;
+                const radius = baseRadius + Math.random() * 15;
+                const color = `hsl(${angle}, 70%, 50%)`;
+                const size = 14 + Math.random() * 10;
+                const rotate = angle + 90;
+
+                dish.style.cssText = `
+                    --r: ${-rotate}deg;
+                    color: ${color};
+                    font-size: ${size}px;
+                    left: ${50 + Math.cos(angle * Math.PI / 180) * radius}%;
+                    top: ${50 + Math.sin(angle * Math.PI / 180) * radius}%;
+                    animation: word-float ${3 + Math.random() * 3}s ease-in-out infinite;
+                `;
+
+                ring.appendChild(dish);
+            }
+        }
+
+        function generateResult() {
+            if(isAnimating) return;
+            isAnimating = true;
+            
+            const btn = document.getElementById('generateBtn');
+            const result = document.getElementById('result');
+            btn.classList.add('disabled');
+
+            document.querySelectorAll('.dish-word').forEach((word, index) => {
+                setTimeout(() => {
+                    word.style.left = '50%';
+                    word.style.top = '50%';
+                    word.style.opacity = '0';
+                }, index * 30);
+            });
+
+            setTimeout(() => {
+                result.textContent = dishes[Math.floor(Math.random() * dishes.length)];
+                result.classList.add('show');
+                
+                result.onclick = () => {
+                    result.classList.remove('show');
+                    resetAnimation();
+                };
+            }, 800);
+        }
+
+        function resetAnimation() {
+            const btn = document.getElementById('generateBtn');
+            const ring = document.getElementById('dish-ring');
+            
+            ring.style.animation = 'none';
+            setTimeout(() => {
+                ring.innerHTML = '';
+                createDishRing();
+                ring.style.animation = 'ring-rotate 40s linear infinite';
+                btn.classList.remove('disabled');
+                isAnimating = false;
+            }, 300);
+        }
+
+        // ³õÊ¼»¯
+        createDishRing();
+        document.getElementById('generateBtn').addEventListener('click', generateResult);
+    </script>
+</body>
+</html>
